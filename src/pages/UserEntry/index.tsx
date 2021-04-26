@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/core';
 import React, { useState } from 'react';
 import {
   SafeAreaView,
@@ -10,7 +9,10 @@ import {
   TouchableWithoutFeedback,
   Platform,
   Keyboard,
+  Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/core';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Button } from '../../components/Button';
 
@@ -24,8 +26,22 @@ export function UserEntry() {
   const [isFilled, setIsFilled] = useState(false);
   const [name, setName] = useState<string>();
 
-  function handleSubmit() {
-    navigation.navigate('Confirmation');
+  async function handleSubmit() {
+    if (!name) return Alert.alert('Me diz como posso te chamar.');
+
+    try {
+      await AsyncStorage.setItem('@plantmanegar:user', name);
+
+      navigation.navigate('Confirmation', {
+        title: 'Prontinho',
+        subtitle: `Vamos começar a cuidar da suas \n platinhas com muito ciudado.`,
+        buttonTitle: 'Começar',
+        icon: 'smile',
+        nextScreen: 'PlantSelect',
+      });
+    } catch {
+      Alert.alert('Internal Error!!');
+    }
   }
 
   function handleInputBlur() {
@@ -51,7 +67,7 @@ export function UserEntry() {
           <View style={styles.content}>
             <View style={styles.form}>
               <View style={styles.formHeader}>
-                <Text style={styles.emoji}>😃</Text>
+                <Text style={styles.emoji}>{!name ? '😊' : '😃'}</Text>
 
                 <Text style={styles.title}>
                   Como podemos {'\n'} chamar você?
@@ -70,7 +86,11 @@ export function UserEntry() {
               />
 
               <View style={styles.footer}>
-                <Button title="Confirmar" onPress={handleSubmit} />
+                <Button
+                  title="Confirmar"
+                  onPress={handleSubmit}
+                  disabled={!name}
+                />
               </View>
             </View>
           </View>

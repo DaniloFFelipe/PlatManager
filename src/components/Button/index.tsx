@@ -13,9 +13,13 @@ interface ButtonPros extends TouchableOpacityProps {
   title: string;
 }
 
-export function Button({ title, ...rest }: ButtonPros) {
+export function Button({ title, disabled, ...rest }: ButtonPros) {
   return (
-    <TouchableOpacity style={styles.container} {...rest}>
+    <TouchableOpacity
+      style={!disabled ? styles.container : styles.containerDisable}
+      disabled={disabled}
+      {...rest}
+    >
       <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   );
@@ -24,6 +28,13 @@ export function Button({ title, ...rest }: ButtonPros) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.green,
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  containerDisable: {
+    backgroundColor: colors.green_light,
     height: 56,
     borderRadius: 16,
     justifyContent: 'center',

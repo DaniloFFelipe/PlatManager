@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 
 import api from '../../service/api';
@@ -16,26 +17,17 @@ import { Load } from '../../components/Load';
 
 import fonts from '../../styles/fonts';
 import colors from '../../styles/colors';
+import { useNavigation } from '@react-navigation/core';
+import { PlantProps } from '../../libs/storage';
 
 interface EnvProps {
   key: string;
   title: string;
 }
 
-interface PlantProps {
-  id: string;
-  name: string;
-  about: string;
-  water_tips: string;
-  photo: string;
-  environments: [string];
-  frequency: {
-    times: string;
-    repeat_every: string;
-  };
-}
-
 export default function PlantSelect() {
+  const navigation = useNavigation();
+
   const [env, setEnv] = useState<EnvProps[]>();
   const [plants, setPlants] = useState<PlantProps[]>([]);
   const [filteredPlants, setFilteredPlants] = useState<PlantProps[]>([]);
@@ -80,7 +72,7 @@ export default function PlantSelect() {
   function handleEnvSelected(env: string) {
     setEnvSelected(env);
 
-    if (envSelected === 'all') {
+    if (env === 'all') {
       setFilteredPlants(plants);
       return;
     }
@@ -96,6 +88,10 @@ export default function PlantSelect() {
     setLoadingMore(true);
     setPage((old) => old + 1);
     fecthPlants();
+  }
+
+  function handlePlantSelect(plant: PlantProps) {
+    navigation.navigate('PlantSave', { plant });
   }
 
   useEffect(() => {
@@ -135,7 +131,12 @@ export default function PlantSelect() {
       <View style={styles.plants}>
         <FlatList
           data={filteredPlants}
-          renderItem={({ item }) => <PlantCardPrimary data={item} />}
+          renderItem={({ item }) => (
+            <PlantCardPrimary
+              data={item}
+              onPress={() => handlePlantSelect(item)}
+            />
+          )}
           showsVerticalScrollIndicator={false}
           numColumns={2}
           contentContainerStyle={styles.plantsCard}
